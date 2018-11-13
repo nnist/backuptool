@@ -151,8 +151,8 @@ def main(argv):
         if len(directory) > longest_dir_length:
             longest_dir_length = len(directory)
 
-    print('Archiving {} directories with total size of {}.'
-          .format(len(directories), sizeof_fmt(total_size)))
+    log.info('Archiving {} directories with total size of {}.'
+             .format(len(directories), sizeof_fmt(total_size)))
 
     with tarfile.open(filename + '.tmp', 'w:gz') as tar:
         for directory in enumerate(directories):
@@ -180,18 +180,16 @@ def main(argv):
         
         status = gpg.encrypt_file(f, **gpg_args)
 
-    # TODO Handle errors
-
-    print('ok:', status.ok)
-    print('status:', status.status)
-    print('stderr:', status.stderr)
+        log.debug('ok:', status.ok)
+        log.debug('status:', status.status)
+        log.debug('stderr:', status.stderr)
 
     log.info("Deleting temporary file {}.".format(filename + '.tmp'))
     os.remove(filename + '.tmp')
 
     encrypted_size = sizeof_fmt(os.path.getsize(filename))
     log.info('Encryption complete. Resulting filesize: {}.'.format(encrypted_size))
-    print("Backup '{}' complete.".format(filename))
+    log.info("Backup '{}' complete.".format(filename))
 
 if __name__ == "__main__":
     try:
