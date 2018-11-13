@@ -113,12 +113,10 @@ def main(argv):
 
     with tarfile.open(filename, 'w:gz') as tar:
         for directory in enumerate(directories):
-            tar.add(directory[1], arcname=os.path.basename(directory[1]))
-
             padding = ' ' * (longest_dir_length - len(directory[1]))
-
             update_progress_bar(directory[0], len(directories),
                                 directory[1] + padding)
+            tar.add(directory[1], arcname=os.path.basename(directory[1]))
 
     update_progress_bar(len(directories), len(directories),
                         ' ' * longest_dir_length)
