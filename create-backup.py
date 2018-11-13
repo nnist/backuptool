@@ -93,6 +93,12 @@ def main(argv):
         else:
             filename = args.output
 
+    if os.path.exists(filename):
+        cont = input("File '{}' exists. Overwrite? (y/N) ".format(filename))
+        if cont.lower() != 'y':
+            print('Aborting.')
+            exit(1)
+
     log.info("Using filename '{}'.".format(filename))
 
     try:
