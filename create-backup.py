@@ -158,6 +158,16 @@ def main(argv):
         print('error: config parsing error')
         exit(1)
 
+    non_existing = []
+    for directory in directories:
+        if not os.path.exists(directory):
+            non_existing.append(directory)
+
+    if non_existing != []:
+        print('error: the following directories do not exist:\n' +
+              '\n'.join(non_existing))
+        exit(1)
+
     if os.path.exists(filename):
         cont = input("File '{}' exists. Overwrite? (y/N) ".format(filename))
         if cont.lower() != 'y':
