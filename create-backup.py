@@ -7,6 +7,7 @@
 # TODO Create MD5sum for unencrypted archive
 # TODO Add argument to backup directories, bypass ones defined in config
 # TODO Add comments to generated config
+# TODO Add argument for config file selection (config.cfg by default)
 
 import argparse
 import sys
