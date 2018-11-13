@@ -172,7 +172,12 @@ def main(argv):
     log.info('Encrypting archive.')
 
     with open(filename + '.tmp', 'rb') as f:
-        status = gpg.encrypt_file(f, recipients=recipients, output=filename, armor=False, symmetric=args.symmetric, passphrase=passphrase)
+        gpg_args = {'recipients': recipients, 'output': filename,
+                    'armor': False, 'symmetric': args.symmetric}
+        if args.symmetric:
+            gpg_args['passphrase'] = passphrase
+        
+        status = gpg.encrypt_file(f, **gpg_args)
 
     # TODO Handle errors
 
