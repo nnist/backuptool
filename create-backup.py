@@ -94,14 +94,6 @@ def main(argv):
         else:
             filename = args.output
 
-    if os.path.exists(filename):
-        cont = input("File '{}' exists. Overwrite? (y/N) ".format(filename))
-        if cont.lower() != 'y':
-            print('Aborting.')
-            exit(1)
-
-    log.info("Using filename '{}'.".format(filename))
-
     # Create an example config file if none exists
     if not os.path.exists('config.cfg'):
         config = configparser.ConfigParser()
@@ -165,6 +157,14 @@ def main(argv):
     except configparser.ParsingError:
         print('error: config parsing error')
         exit(1)
+
+    if os.path.exists(filename):
+        cont = input("File '{}' exists. Overwrite? (y/N) ".format(filename))
+        if cont.lower() != 'y':
+            print('Aborting.')
+            exit(1)
+
+    log.info("Using filename '{}'.".format(filename))
 
     passphrase = ''
     if args.symmetric:
