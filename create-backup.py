@@ -93,8 +93,12 @@ def main(argv):
         directories.extend(json.loads(config.get('NON_ESSENTIAL',
                                                  'directories')))
 
-    recipients = json.loads(config.get('RECIPIENTS',
-                                       'recipients'))
+    recipients = json.loads(config.get('SETTINGS', 'recipients'))
+
+    gnupghome = json.loads(config.get('SETTINGS', 'gnupghome'))
+    if not isinstance(gnupghome, str):
+        print('error: gnupghome not set')
+        exit(1)
 
     passphrase = ''
     if args.symmetric:
@@ -135,7 +139,7 @@ def main(argv):
     log.info('Archiving complete. Resulting filesize: {}.'
              .format(archived_size))
 
-    gpg = gnupg.GPG(gnupghome='/home/nicole/.gnupg')
+    gpg = gnupg.GPG(gnupghome=gnupghome)
 
     log.info('Encrypting archive.')
 
