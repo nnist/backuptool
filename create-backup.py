@@ -75,26 +75,33 @@ def main(argv):
     directories = []
     log.basicConfig(format='%(asctime)s %(message)s', level=log.INFO)
     
-    config = configparser.ConfigParser()
-    config.read('config.cfg')
-    
-    if args.critical:
-        directories.extend(json.loads(config.get('CRITICAL',
-                                                 'directories')))
+    try:
+        config = configparser.ConfigParser()
+        config.read('config.cfg')
+        
+        if args.critical:
+            directories.extend(json.loads(config.get('CRITICAL',
+                                                     'directories')))
 
-    if args.important:
-        directories.extend(json.loads(config.get('IMPORTANT',
-                                                 'directories')))
+        if args.important:
+            directories.extend(json.loads(config.get('IMPORTANT',
+                                                     'directories')))
 
-    if args.nonessential:
-        directories.extend(json.loads(config.get('NON_ESSENTIAL',
-                                                 'directories')))
+        if args.nonessential:
+            directories.extend(json.loads(config.get('NON_ESSENTIAL',
+                                                     'directories')))
 
-    recipients = json.loads(config.get('SETTINGS', 'recipients'))
+        recipients = json.loads(config.get('SETTINGS', 'recipients'))
 
-    gnupghome = json.loads(config.get('SETTINGS', 'gnupghome'))
-    if not isinstance(gnupghome, str):
-        print('error: gnupghome not set')
+        gnupghome = json.loads(config.get('SETTINGS', 'gnupghome'))
+        if not isinstance(gnupghome, str):
+            print('error: gnupghome not set')
+            exit(1)
+    except json.decoder.JSONDecodeError:
+        print('error: config has wrong json format')
+        exit(1)
+    except configparser.ParsingError:
+        print('error: config parsing error')
         exit(1)
 
     passphrase = ''
