@@ -163,7 +163,7 @@ def main(argv):
     update_progress_bar(len(directories), len(directories),
                         ' ' * longest_dir_length)
 
-    archived_size = sizeof_fmt(os.path.getsize(filename))
+    archived_size = sizeof_fmt(os.path.getsize(filename + '.tmp'))
     log.info('Archiving complete. Resulting filesize: {}.'
              .format(archived_size))
 
