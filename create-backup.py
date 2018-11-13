@@ -151,6 +151,15 @@ def main(argv):
         if len(directory) > longest_dir_length:
             longest_dir_length = len(directory)
 
+    # Determine if enough space is available for both the unencrypted and
+    # the encrypted archive. Multiply dir size by 2.5 to
+    # account for encrypted file with armor.
+    directory = os.path.dirname(os.path.realpath(filename))
+    statvfs = os.statvfs(directory)
+    if total_size * 2.5 > statvfs.f_frsize * statvfs.f_bavail:
+        print('error: not enough free space')
+        exit(1)
+
     log.info('Archiving {} directories with total size of {}.'
              .format(len(directories), sizeof_fmt(total_size)))
 
