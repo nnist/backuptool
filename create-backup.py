@@ -61,6 +61,34 @@ def create_filename(name):
         else:
             return name
 
+def create_config():
+    """Create a config file which the user can fill in."""
+    config = configparser.ConfigParser()
+    config['SETTINGS'] = {}
+    config['SETTINGS']['recipients'] = '["user@email.com"]'
+    config['SETTINGS']['gnupghome'] = '"/home/user/.gnupg"'
+    config['CRITICAL'] = {}
+    config['CRITICAL']['directories'] = (
+        '[\n'
+        '"/home/user/.password-store",\n'
+        '"/home/user/.gnupg"\n'
+        ']')
+    config['IMPORTANT'] = {}
+    config['IMPORTANT']['directories'] = (
+        '[\n'
+        '"/home/user/Pictures",\n'
+        '"/home/user/Documents"\n'
+        ']')
+    config['NON_ESSENTIAL'] = {}
+    config['NON_ESSENTIAL']['directories'] = (
+        '[\n'
+        '"/mnt/hdd/large-files",\n'
+        '"/mnt/hdd/movies"\n'
+        ']')
+
+    with open('config.cfg', 'w') as f:
+        config.write(f)
+
 def main(argv):
     parser = argparse.ArgumentParser(
         description="""Create a backup."""
@@ -102,39 +130,12 @@ def main(argv):
     
     filename = create_filename(args.output)
 
-    # Create an example config file if none exists
     if not os.path.exists('config.cfg'):
-        config = configparser.ConfigParser()
-        config['SETTINGS'] = {}
-        config['SETTINGS']['recipients'] = '["user@email.com"]'
-        config['SETTINGS']['gnupghome'] = '"/home/user/.gnupg"'
-        config['CRITICAL'] = {}
-        config['CRITICAL']['directories'] = (
-            '[\n'
-            '"/home/user/.password-store",\n'
-            '"/home/user/.gnupg"\n'
-            ']')
-        config['IMPORTANT'] = {}
-        config['IMPORTANT']['directories'] = (
-            '[\n'
-            '"/home/user/Pictures",\n'
-            '"/home/user/Documents"\n'
-            ']')
-        config['NON_ESSENTIAL'] = {}
-        config['NON_ESSENTIAL']['directories'] = (
-            '[\n'
-            '"/mnt/hdd/large-files",\n'
-            '"/mnt/hdd/movies"\n'
-            ']')
-
-        with open('config.cfg', 'w') as f:
-            config.write(f)
-
+        create_config()
         print("error: No configuration file found. "
               "An example 'config.cfg' has been created.\n"
               "Please fill it with your configuration "
               "settings and then run the script again.")
-
         exit(0)
 
     try:
