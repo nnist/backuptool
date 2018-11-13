@@ -47,6 +47,20 @@ def get_size(start_path = '.'):
             total_size += os.path.getsize(fp)
     return total_size
 
+def create_filename(name):
+    """Return a filename from input name.
+       Use a default if no input is given."""
+    if not name:
+        date = datetime.datetime.today().strftime('%Y-%m-%d')
+        return '/tmp/backup-{}.tar.gz.gpg'.format(date)
+    else:
+        if os.path.isdir(name):
+            date = datetime.datetime.today().strftime('%Y-%m-%d')
+            name = name.rstrip('/')
+            return '{}/backup-{}.tar.gz.gpg'.format(name, date)
+        else:
+            return name
+
 def main(argv):
     parser = argparse.ArgumentParser(
         description="""Create a backup."""
@@ -86,17 +100,7 @@ def main(argv):
     directories = []
     log.basicConfig(format='%(asctime)s %(message)s', level=log.INFO)
     
-    filename = None
-    if not args.output:
-        date = datetime.datetime.today().strftime('%Y-%m-%d')
-        filename = '/tmp/backup-{}.tar.gz.gpg'.format(date)
-    else:
-        if os.path.isdir(args.output):
-            date = datetime.datetime.today().strftime('%Y-%m-%d')
-            args.output = args.output.rstrip('/')
-            filename = '{}/backup-{}.tar.gz.gpg'.format(args.output, date)
-        else:
-            filename = args.output
+    filename = create_filename(args.output)
 
     # Create an example config file if none exists
     if not os.path.exists('config.cfg'):
