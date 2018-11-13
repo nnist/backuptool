@@ -134,6 +134,14 @@ def get_non_existing_directories(directories):
 
     return non_existing
 
+def get_longest_dir_length(directories):
+    longest_dir_length = 0
+    for directory in directories:
+        if len(directory) > longest_dir_length:
+            longest_dir_length = len(directory)
+
+    return longest_dir_length
+
 def main(argv):
     parser = argparse.ArgumentParser(
         description="""Create a backup."""
@@ -213,12 +221,9 @@ def main(argv):
             else:
                 print('Passphrases do not match.')
 
-    longest_dir_length = 0
     total_size = 0
     for directory in directories:
         total_size = total_size + get_size(directory)
-        if len(directory) > longest_dir_length:
-            longest_dir_length = len(directory)
 
     # Determine if enough space is available for both the unencrypted and
     # the encrypted archive. Multiply dir size by 2.5 to
@@ -231,6 +236,8 @@ def main(argv):
 
     log.info('Archiving {} directories with total size of {}.'
              .format(len(directories), sizeof_fmt(total_size)))
+
+    longest_dir_length = get_longest_dir_length(directories)
 
     with tarfile.open(filename + '.tmp', 'w:gz') as tar:
         for directory in enumerate(directories):
