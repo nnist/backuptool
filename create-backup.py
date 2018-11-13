@@ -153,15 +153,23 @@ def get_longest_dir_length(directories):
 
     return longest_dir_length
 
-def check_free_size(filename):
+def check_free_size(filename, size):
     """Determine if enough space is available for both the unencrypted and
        the encrypted archive. Multiply dir size by 2.5 to
        account for encrypted file with armor."""
     directory = os.path.dirname(os.path.realpath(filename))
     statvfs = os.statvfs(directory)
-    if total_size * 2.5 > statvfs.f_frsize * statvfs.f_bavail:
+    if size * 2.5 > statvfs.f_frsize * statvfs.f_bavail:
         print('error: not enough free space')
         exit(1)
+
+def get_directories_size(directories):
+    """Return the total size of the supplied list of directories."""
+    total_size = 0
+    for directory in directories:
+        total_size = total_size + get_size(directory)
+
+    return total_size
 
 def main(argv):
     parser = argparse.ArgumentParser(
@@ -232,14 +240,11 @@ def main(argv):
     if args.symmetric:
         passphrase = ask_passphrase()
 
-    total_size = 0
-    for directory in directories:
-        total_size = total_size + get_size(directory)
-
-    check_free_size(filename)
+    directories_size = get_directories_size(directories)
+    check_free_size(filename, directories_size)
 
     log.info('Archiving {} directories with total size of {}.'
-             .format(len(directories), sizeof_fmt(total_size)))
+             .format(len(directories), sizeof_fmt(directories_size)))
 
     longest_dir_length = get_longest_dir_length(directories)
 
