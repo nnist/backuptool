@@ -89,6 +89,41 @@ def create_config():
     with open('config.cfg', 'w') as f:
         config.write(f)
 
+def read_config(critical, important, nonessential):
+    """Read the config file. Return the config values."""
+    try:
+        config = configparser.ConfigParser()
+        config.read('config.cfg')
+
+        directories = []
+
+        if critical:
+            directories.extend(json.loads(config.get('CRITICAL',
+                                                     'directories')))
+
+        if important:
+            directories.extend(json.loads(config.get('IMPORTANT',
+                                                     'directories')))
+
+        if nonessential:
+            directories.extend(json.loads(config.get('NON_ESSENTIAL',
+                                                     'directories')))
+
+        recipients = json.loads(config.get('SETTINGS', 'recipients'))
+
+        gnupghome = json.loads(config.get('SETTINGS', 'gnupghome'))
+        if not isinstance(gnupghome, str):
+            print('error: gnupghome not set')
+            exit(1)
+
+        return directories, recipients, gnupghome
+    except json.decoder.JSONDecodeError:
+        print('error: config has wrong json format')
+        exit(1)
+    except configparser.ParsingError:
+        print('error: config parsing error')
+        exit(1)
+
 def main(argv):
     parser = argparse.ArgumentParser(
         description="""Create a backup."""
@@ -125,7 +160,6 @@ def main(argv):
         type=str
     )
     args = parser.parse_args(argv)
-    directories = []
     log.basicConfig(format='%(asctime)s %(message)s', level=log.INFO)
     
     filename = create_filename(args.output)
@@ -138,34 +172,9 @@ def main(argv):
               "settings and then run the script again.")
         exit(0)
 
-    try:
-        config = configparser.ConfigParser()
-        config.read('config.cfg')
-        
-        if args.critical:
-            directories.extend(json.loads(config.get('CRITICAL',
-                                                     'directories')))
-
-        if args.important:
-            directories.extend(json.loads(config.get('IMPORTANT',
-                                                     'directories')))
-
-        if args.nonessential:
-            directories.extend(json.loads(config.get('NON_ESSENTIAL',
-                                                     'directories')))
-
-        recipients = json.loads(config.get('SETTINGS', 'recipients'))
-
-        gnupghome = json.loads(config.get('SETTINGS', 'gnupghome'))
-        if not isinstance(gnupghome, str):
-            print('error: gnupghome not set')
-            exit(1)
-    except json.decoder.JSONDecodeError:
-        print('error: config has wrong json format')
-        exit(1)
-    except configparser.ParsingError:
-        print('error: config parsing error')
-        exit(1)
+    directories, recipients, gnupghome = read_config(args.critical,
+                                                     args.important,
+                                                     args.nonessential)
 
     non_existing = []
     for directory in directories:
