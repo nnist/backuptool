@@ -6,6 +6,7 @@
 # TODO Handle missing file errors
 # TODO Create MD5sum for unencrypted archive
 # TODO Add argument to backup directories, bypass ones defined in config
+# TODO Add comments to generated config
 
 import argparse
 import sys
