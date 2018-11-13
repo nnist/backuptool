@@ -171,6 +171,28 @@ def get_directories_size(directories):
 
     return total_size
 
+def create_archive(filename, directories):
+    """Create a .tar.gz archive. Return the archive name."""
+    directories_size = get_directories_size(directories)
+    log.info('Archiving {} directories with total size of {}.'
+             .format(len(directories), sizeof_fmt(directories_size)))
+    longest_dir_length = get_longest_dir_length(directories)
+    archive = filename + '.tmp'
+    
+    with tarfile.open(archive, 'w:gz') as tar:
+        for directory in enumerate(directories):
+            padding = ' ' * (longest_dir_length - len(directory[1]))
+            update_progress_bar(directory[0], len(directories),
+                                directory[1] + padding)
+            tar.add(directory[1], arcname=os.path.basename(directory[1]))
+
+    update_progress_bar(len(directories), len(directories),
+                        ' ' * longest_dir_length)
+    archived_size = sizeof_fmt(os.path.getsize(archive))
+    log.info('Archiving complete. Resulting filesize: {}.'
+             .format(archived_size))
+    return archive
+
 def main(argv):
     parser = argparse.ArgumentParser(
         description="""Create a backup."""
@@ -243,30 +265,13 @@ def main(argv):
     directories_size = get_directories_size(directories)
     check_free_size(filename, directories_size)
 
-    log.info('Archiving {} directories with total size of {}.'
-             .format(len(directories), sizeof_fmt(directories_size)))
-
-    longest_dir_length = get_longest_dir_length(directories)
-
-    with tarfile.open(filename + '.tmp', 'w:gz') as tar:
-        for directory in enumerate(directories):
-            padding = ' ' * (longest_dir_length - len(directory[1]))
-            update_progress_bar(directory[0], len(directories),
-                                directory[1] + padding)
-            tar.add(directory[1], arcname=os.path.basename(directory[1]))
-
-    update_progress_bar(len(directories), len(directories),
-                        ' ' * longest_dir_length)
-
-    archived_size = sizeof_fmt(os.path.getsize(filename + '.tmp'))
-    log.info('Archiving complete. Resulting filesize: {}.'
-             .format(archived_size))
+    archive = create_archive(filename, directories)
 
     gpg = gnupg.GPG(gnupghome=gnupghome)
 
     log.info('Encrypting archive.')
 
-    with open(filename + '.tmp', 'rb') as f:
+    with open(archive, 'rb') as f:
         gpg_args = {'recipients': recipients, 'output': filename,
                     'armor': False, 'symmetric': args.symmetric}
         if args.symmetric:
