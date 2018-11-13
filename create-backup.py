@@ -3,8 +3,6 @@
 
 # TODO Backup Pi?
 # TODO Option to restore backup
-# TODO Improve input and output, use logging for messages?
-# TODO Set output as argument
 # TODO Handle missing file errors
 # TODO Create MD5sum for unencrypted archive
 
