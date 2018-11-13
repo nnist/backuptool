@@ -4,9 +4,6 @@
 # TODO Backup Pi?
 # TODO Option to restore backup
 # TODO Improve input and output, use logging for messages?
-# TODO Read directories from .cfg file
-# TODO Set recipients in .cfg file
-# TODO Set gnupg home in .cfg
 # TODO Set output as argument
 # TODO Handle missing file errors
 
