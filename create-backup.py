@@ -19,6 +19,7 @@ import gnupg
 import getpass
 import logging as log
 import configparser
+import json
 
 def update_progress_bar(current, total, msg=''):
     """Display a progress bar."""
@@ -77,6 +78,24 @@ def main(argv):
     directories = []
     log.basicConfig(format='%(asctime)s %(message)s', level=log.INFO)
     
+    config = configparser.ConfigParser()
+    config.read('config.cfg')
+    
+    if args.critical:
+        directories.extend(json.loads(config.get('CRITICAL',
+                                                 'directories')))
+
+    if args.important:
+        directories.extend(json.loads(config.get('IMPORTANT',
+                                                 'directories')))
+
+    if args.nonessential:
+        directories.extend(json.loads(config.get('NON_ESSENTIAL',
+                                                 'directories')))
+
+    recipients = json.loads(config.get('RECIPIENTS',
+                                       'recipients'))
+
     passphrase = ''
     if args.symmetric:
         valid = False
@@ -89,15 +108,6 @@ def main(argv):
                 print('Passphrases match.')
             else:
                 print('Passphrases do not match.')
-
-    if args.critical:
-        directories.extend(DIRECTORIES_CRITICAL)
-
-    if args.important:
-        directories.extend(DIRECTORIES_IMPORTANT)
-
-    if args.nonessential:
-        directories.extend(DIRECTORIES_NON_ESSENTIAL)
 
     date = datetime.datetime.today().strftime('%Y-%m-%d')
     filename = '/tmp/backup-{}.tar.gz'.format(date)
@@ -131,7 +141,7 @@ def main(argv):
 
     with open(filename, 'rb') as f:
         filename = filename + '.gpg'
-        status = gpg.encrypt_file(f, recipients=RECIPIENTS, output=filename, armor=False, symmetric=args.symmetric, passphrase=passphrase)
+        status = gpg.encrypt_file(f, recipients=recipients, output=filename, armor=False, symmetric=args.symmetric, passphrase=passphrase)
 
     # TODO Handle errors
 
