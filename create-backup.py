@@ -71,10 +71,30 @@ def main(argv):
         help="Use symmetric encryption",
         action='store_true'
     )
+    parser.add_argument(
+        '-o', '--output',
+        help='Filename to use for the archive.'
+             'Default = /tmp/backup-<date>.tar.gz.gpg',
+        type=str
+    )
     args = parser.parse_args(argv)
     directories = []
     log.basicConfig(format='%(asctime)s %(message)s', level=log.INFO)
     
+    filename = None
+    if not args.output:
+        date = datetime.datetime.today().strftime('%Y-%m-%d')
+        filename = '/tmp/backup-{}.tar.gz.gpg'.format(date)
+    else:
+        if os.path.isdir(args.output):
+            date = datetime.datetime.today().strftime('%Y-%m-%d')
+            args.output = args.output.rstrip('/')
+            filename = '{}/backup-{}.tar.gz.gpg'.format(args.output, date)
+        else:
+            filename = args.output
+
+    log.info("Using filename '{}'.".format(filename))
+
     try:
         config = configparser.ConfigParser()
         config.read('config.cfg')
@@ -117,8 +137,6 @@ def main(argv):
             else:
                 print('Passphrases do not match.')
 
-    date = datetime.datetime.today().strftime('%Y-%m-%d')
-    filename = '/tmp/backup-{}.tar.gz'.format(date)
     longest_dir_length = 0
     total_size = 0
     for directory in directories:
@@ -148,7 +166,6 @@ def main(argv):
     log.info('Encrypting archive.')
 
     with open(filename, 'rb') as f:
-        filename = filename + '.gpg'
         status = gpg.encrypt_file(f, recipients=recipients, output=filename, armor=False, symmetric=args.symmetric, passphrase=passphrase)
 
     # TODO Handle errors
