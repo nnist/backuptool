@@ -124,6 +124,17 @@ def read_config(critical, important, nonessential):
         print('error: config parsing error')
         exit(1)
 
+def ask_passphrase():
+    while True:
+        passphrase = getpass.getpass('Passphrase to use: ')
+        confirm = getpass.getpass('Re-type your passphrase: ')
+
+        if passphrase == confirm:
+            print('Passphrases match.')
+            return passphrase
+        else:
+            print('Passphrases do not match.')
+
 def get_non_existing_directories(directories):
     """Check if list of directories exists. Return directories that
        do not exist."""
@@ -208,18 +219,8 @@ def main(argv):
 
     log.info("Using filename '{}'.".format(filename))
 
-    passphrase = ''
     if args.symmetric:
-        valid = False
-        while not valid:
-            passphrase = getpass.getpass('Passphrase to use: ')
-            confirm = getpass.getpass('Re-type your passphrase: ')
-
-            if passphrase == confirm:
-                valid = True
-                print('Passphrases match.')
-            else:
-                print('Passphrases do not match.')
+        passphrase = ask_passphrase()
 
     total_size = 0
     for directory in directories:
