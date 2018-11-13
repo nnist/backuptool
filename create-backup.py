@@ -124,6 +124,16 @@ def read_config(critical, important, nonessential):
         print('error: config parsing error')
         exit(1)
 
+def get_non_existing_directories(directories):
+    """Check if list of directories exists. Return directories that
+       do not exist."""
+    non_existing = []
+    for directory in directories:
+        if not os.path.exists(directory):
+            non_existing.append(directory)
+
+    return non_existing
+
 def main(argv):
     parser = argparse.ArgumentParser(
         description="""Create a backup."""
@@ -176,11 +186,7 @@ def main(argv):
                                                      args.important,
                                                      args.nonessential)
 
-    non_existing = []
-    for directory in directories:
-        if not os.path.exists(directory):
-            non_existing.append(directory)
-
+    non_existing = get_non_existing_directories(directories)
     if non_existing != []:
         print('error: the following directories do not exist:\n' +
               '\n'.join(non_existing))
