@@ -193,6 +193,29 @@ def create_archive(filename, directories):
              .format(archived_size))
     return archive
 
+def encrypt_archive(archive, gnupghome, recipients, filename,
+                    symmetric=False, passphrase=None):
+    """Encrypt an archive file."""
+    gpg = gnupg.GPG(gnupghome=gnupghome)
+    log.info('Encrypting archive.')
+    with open(archive, 'rb') as f:
+        gpg_args = {'recipients': recipients, 'output': filename,
+                    'armor': False, 'symmetric': symmetric}
+        if symmetric:
+            gpg_args['passphrase'] = passphrase
+        
+        status = gpg.encrypt_file(f, **gpg_args)
+
+        log.debug('ok:', status.ok)
+        log.debug('status:', status.status)
+        log.debug('stderr:', status.stderr)
+
+    log.info("Deleting temporary file {}.".format(archive))
+    os.remove(archive)
+
+    encrypted_size = sizeof_fmt(os.path.getsize(filename))
+    log.info('Encryption complete. Resulting filesize: {}.'.format(encrypted_size))
+
 def main(argv):
     parser = argparse.ArgumentParser(
         description="""Create a backup."""
@@ -259,6 +282,7 @@ def main(argv):
 
     log.info("Using filename '{}'.".format(filename))
 
+    passphrase = None
     if args.symmetric:
         passphrase = ask_passphrase()
 
@@ -267,27 +291,9 @@ def main(argv):
 
     archive = create_archive(filename, directories)
 
-    gpg = gnupg.GPG(gnupghome=gnupghome)
+    encrypt_archive(archive, gnupghome, recipients, filename,
+                    args.symmetric, passphrase)
 
-    log.info('Encrypting archive.')
-
-    with open(archive, 'rb') as f:
-        gpg_args = {'recipients': recipients, 'output': filename,
-                    'armor': False, 'symmetric': args.symmetric}
-        if args.symmetric:
-            gpg_args['passphrase'] = passphrase
-        
-        status = gpg.encrypt_file(f, **gpg_args)
-
-        log.debug('ok:', status.ok)
-        log.debug('status:', status.status)
-        log.debug('stderr:', status.stderr)
-
-    log.info("Deleting temporary file {}.".format(filename + '.tmp'))
-    os.remove(filename + '.tmp')
-
-    encrypted_size = sizeof_fmt(os.path.getsize(filename))
-    log.info('Encryption complete. Resulting filesize: {}.'.format(encrypted_size))
     log.info("Backup '{}' complete.".format(filename))
 
 if __name__ == "__main__":
