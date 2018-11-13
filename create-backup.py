@@ -71,6 +71,11 @@ def main(argv):
         action='store_true'
     )
     parser.add_argument(
+        '-y', '--yes',
+        help="Answer yes to every question",
+        action='store_true'
+    )
+    parser.add_argument(
         '-o', '--output',
         help='Filename to use for the archive.'
              'Default = /tmp/backup-<date>.tar.gz.gpg',
@@ -166,7 +171,7 @@ def main(argv):
               '\n'.join(non_existing))
         exit(1)
 
-    if os.path.exists(filename):
+    if os.path.exists(filename) and not args.yes:
         cont = input("File '{}' exists. Overwrite? (y/N) ".format(filename))
         if cont.lower() != 'y':
             print('Aborting.')
