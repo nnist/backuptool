@@ -180,6 +180,9 @@ def main(argv):
     print('status:', status.status)
     print('stderr:', status.stderr)
 
+    log.info("Deleting temporary file {}.".format(filename + '.tmp'))
+    os.remove(filename + '.tmp')
+
     encrypted_size = sizeof_fmt(os.path.getsize(filename))
     log.info('Encryption complete. Resulting filesize: {}.'.format(encrypted_size))
     print("Backup '{}' complete.".format(filename))
