@@ -153,7 +153,7 @@ def main(argv):
     print('Archiving {} directories with total size of {}.'
           .format(len(directories), sizeof_fmt(total_size)))
 
-    with tarfile.open(filename, 'w:gz') as tar:
+    with tarfile.open(filename + '.tmp', 'w:gz') as tar:
         for directory in enumerate(directories):
             padding = ' ' * (longest_dir_length - len(directory[1]))
             update_progress_bar(directory[0], len(directories),
@@ -171,7 +171,7 @@ def main(argv):
 
     log.info('Encrypting archive.')
 
-    with open(filename, 'rb') as f:
+    with open(filename + '.tmp', 'rb') as f:
         status = gpg.encrypt_file(f, recipients=recipients, output=filename, armor=False, symmetric=args.symmetric, passphrase=passphrase)
 
     # TODO Handle errors
