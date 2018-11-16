@@ -8,6 +8,8 @@
 # TODO Add argument to backup directories, bypass ones defined in config
 # TODO Add comments to generated config
 # TODO Add argument for config file selection (config.cfg by default)
+# TODO Make it possible to easily add new categories in config
+# TODO Add argument for category selection, instead of presets -i -c etc
 
 import argparse
 import sys
