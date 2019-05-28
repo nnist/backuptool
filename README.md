@@ -56,3 +56,7 @@ Create encrypted .tar.gz archives.
       critical, important and non-essential files.
     - `python create-backup.py -c --symmetric` creates a backup file using
       symmetric encryption. You will be asked to choose a password.
+
+5. The backup is now complete.
+
+    You can decrypt the resulting file using `gpg --output <filename>.tar.gz --decrypt <archive_name>.tar.gz.gpg`. Optionally append `& progress -mp $!` to that command to show progress.
